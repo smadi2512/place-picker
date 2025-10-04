@@ -28,6 +28,7 @@ This project started from a guided exercise, but I **significantly extended and 
 - **React** (hooks: useState, useRef, useEffect, useCallback)
 - **React Portals** for modal rendering
 - **Browser's localStorage**
+- **Geolocation API** to get the user's current location for sorting with a default order if permission is denied
 - **JavaScript (ES6+)**
 - **CSS3/Styling**
 - **Vite** (for development and build)
