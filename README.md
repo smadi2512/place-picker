@@ -5,7 +5,7 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript)
 
 
-A simple **React.js application** to create your personal collection of places you would like to visit or you have visited. You can select/unselect your favorite places easily.
+A simple **React.js frontend application** to create your personal collection of places you would like to visit or you have visited. This is a **frontend-only version** (no backend integration), using browser's localStorage to persist picked places. You can select/unselect your favorite places easily.
 
 This project started from a guided exercise, but I **significantly extended and customized it** with independent features, UX improvements, and design decisions — including dynamic modal content, auto-confirmation unselect with a countdown progress bar, **and fully responsive design for mobile, tablet, and desktop users**.
 
@@ -13,6 +13,7 @@ This project started from a guided exercise, but I **significantly extended and 
 
 ## 🚀 Features
 
+- ⚠️ Frontend-only: Data is stored in browser's localStorage, no backend/API is used
 - 📍 Sort available places based on user's current location (fallback to default order if permission is denied)
 - 💾 Save picked places to localStorage
 - ➕ Select new places and prevent duplicates with a warning modal
