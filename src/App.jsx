@@ -1,159 +1,142 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 
 import Places from "./components/Places.jsx";
-import { AVAILABLE_PLACES } from "./data.js";
 import Modal from "./components/UI/Modal.jsx";
 import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
-import { sortPlacesByDistance } from "./loc.js";
-
-//Get the stored places from localStorage
-const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
-const storedPlaces = storedIds.map((id) =>
-  AVAILABLE_PLACES.find((place) => place.id === id)
-);
+import AvailablePlaces from "./components/AvailablePlaces.jsx";
+import { updateUserPlaces, fetchUserPlaces } from "./http.js";
+import Error from "./components/UI/Error.jsx";
 
 function App() {
   const selectedPlace = useRef();
-  const [modalInfo, setModalInfo] = useState({
+  const [userPlaces, setUserPlaces] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
+  const [error, setError] = useState();
+
+  const [modal, setModal] = useState({
     open: false,
     type: "",
     message: "",
   });
-  const [pickedPlaces, setPickedPlaces] = useState(storedPlaces);
-  const [availablePlaces, setAvailablePlaces] = useState([]);
 
-  /*useEffect(() => {
-    setAvailablePlaces(AVAILABLE_PLACES);
-  }, []);*/
-
-  //Sort available places according to user's current location
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const sortedPlaces = sortPlacesByDistance(
-        AVAILABLE_PLACES,
-        position.coords.latitude,
-        position.coords.longitude
-      );
-
-      setAvailablePlaces(sortedPlaces);
-    },
-    () => {
-      setAvailablePlaces(AVAILABLE_PLACES);
+    async function getUserPlaces() {
+      setIsFetching(true);
+      try {
+        const places = await fetchUserPlaces();
+        setUserPlaces(places);
+      } catch (error) {
+        setUserPlaces([]);
+        setError({
+          message:
+            error.message || "Could not fetch places, please try again later.",
+        });
+      } finally {
+        setIsFetching(false);
+      }
     }
-  );
+    getUserPlaces();
   }, []);
 
+  //Modal helpers
+  const openModal = (type, message) => setModal({ open: true, type, message });
+  const closeModal = () => setModal({ open: false, type: "", message: "" });
+
   //Open the delete confirmation modal
-  function handleStartRemovePlace(id) {
-    selectedPlace.current = id;
-    const place = pickedPlaces.find((place) => place.id === id);
-    setModalInfo({
-      open: true,
-      type: "delete",
-      message: place.title,
-    });
+  function handleStartRemovePlace(place) {
+    selectedPlace.current = place;
+    openModal("delete", place.title);
   }
 
-  //Close the dialog modal
-  function handleCloseModal() {
-    setModalInfo({
-      open: false,
-      type: "",
-      message: "",
-    });
-  }
+  //Add the selected place
+  async function handleSelectPlace(selectedPlaceItem) {
+    //Check if the selected places is already exists
+    if (userPlaces.some((place) => place.id === selectedPlaceItem.id)) {
+      openModal("warning", `${selectedPlaceItem.title} already added!`);
+      return;
+    }
+    const updatedPlaces = [selectedPlaceItem, ...userPlaces];
+    setUserPlaces(updatedPlaces); //Updating the sate
 
-  //Select a place to add to the picked places
-  function handleSelectPlace(id) {
-    const place = AVAILABLE_PLACES.find((place) => place.id === id);
-    setPickedPlaces((prevPickedPlaces) => {
-      if (prevPickedPlaces.some((place) => place.id === id)) {
-        return prevPickedPlaces;
-      }
-      return [place, ...prevPickedPlaces];
-    });
-    //Fetch our stored IDs from localStorage
-    const storedIDs = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
-    if (storedIDs.indexOf(id) === -1) {
-      //Set our new stored IDs
-      localStorage.setItem(
-        "selectedPlaces",
-        JSON.stringify([id, ...storedIDs])
-      );
-      setModalInfo({
-        open: true,
-        type: "success",
-        message: `${place.title} added successfully!`,
-      });
-    } else {
-      setModalInfo({
-        open: true,
-        type: "warning",
-        message: `${place.title} already added!`,
-      });
+    //Send user places to backend
+    try {
+      await updateUserPlaces(updatedPlaces);
+      openModal("success", `${selectedPlaceItem.title} added successfully!`);
+    } catch (error) {
+      setUserPlaces(userPlaces); // rollback
+      openModal("error", error.message || "Failed to update places.");
     }
   }
 
   //Remove a place from the picked places
-  const handleRemovePlace = useCallback(function handleRemovePlace() {
-    setPickedPlaces((prevPickedPlaces) =>
-      prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
+  const handleRemovePlace = useCallback(async () => {
+    const updatedPlaces = userPlaces.filter(
+      (place) => place.id !== selectedPlace.current.id
     );
-    const storedIDs = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
-    localStorage.setItem(
-      "selectedPlaces",
-      JSON.stringify(storedIDs.filter((id) => id !== selectedPlace.current))
-    );
-    handleCloseModal();
-  }, []);
+    setUserPlaces(updatedPlaces);
+    try {
+      await updateUserPlaces(updatedPlaces);
+      openModal(
+        "success",
+        `${selectedPlace.current.title} removed successfully!`
+      );
+    } catch (error) {
+      openModal("error", error.message || "Failed to delete a place.");
+    }
+    closeModal();
+  }, [userPlaces]);
 
   return (
     <>
-      <Modal open={modalInfo.open} onClose={handleCloseModal}>
-        {modalInfo.type === "delete" && (
+      <Modal open={modal.open} onClose={closeModal}>
+        {modal.type === "delete" && (
           <DeleteConfirmation
-            onCancel={handleCloseModal}
+            onCancel={closeModal}
             onConfirm={handleRemovePlace}
-            placeName={modalInfo.message}
+            placeName={modal.message}
           />
         )}
-        {(modalInfo.type === "warning" || modalInfo.type === "success") && (
+        {modal.type === "error" && (
+          <Error
+            title="An error occurred!"
+            message={modal.message}
+            onConfirm={closeModal}
+          />
+        )}
+        {(modal.type === "success" || modal.type === "warning") && (
           <>
-            <h2>{modalInfo.message}</h2>
+            <h2>{modal.message}</h2>
             <div id="modal-actions">
-              <button onClick={handleCloseModal} className="button-text">
+              <button onClick={closeModal} className="button-text">
                 Close
               </button>
             </div>
           </>
         )}
       </Modal>
-
       <header>
-        <img src={logoImg} alt="Stylized globe" />
-        <h1>PlacePicker</h1>
+        <img src={logoImg} alt="Stylized globe" /> <h1>PlacePicker</h1>
         <p>
           Create your personal collection of places you would like to visit or
           you have visited.
         </p>
       </header>
       <main>
-        <Places
-          title="I'd like to visit ..."
-          fallbackText={"Select the places you would like to visit below."}
-          places={pickedPlaces}
-          onSelectPlace={handleStartRemovePlace}
-        />
-        <Places
-          title="Available Places"
-          fallbackText={"Sorting Places by distacne......."}
-          places={availablePlaces}
-          onSelectPlace={handleSelectPlace}
-        />
+        {error && <Error title="An error occurred!" message={error.message} />}
+        {!error && (
+          <Places
+            title="I'd like to visit ..."
+            fallbackText="Select the places you would like to visit below."
+            isLoading={isFetching}
+            loadingText="Fetching your place data ....."
+            places={userPlaces}
+            onSelectPlace={handleStartRemovePlace}
+          />
+        )}
+        <AvailablePlaces onSelectPlace={handleSelectPlace} />
       </main>
     </>
   );
 }
-
 export default App;
