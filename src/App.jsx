@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useCallback } from "react";
+import { useFetch } from "./hooks/useFetch.js";
 
 import Places from "./components/Places.jsx";
 import Modal from "./components/UI/Modal.jsx";
@@ -10,9 +11,6 @@ import Error from "./components/UI/Error.jsx";
 
 function App() {
   const selectedPlace = useRef();
-  const [userPlaces, setUserPlaces] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState();
 
   const [modal, setModal] = useState({
     open: false,
@@ -20,24 +18,13 @@ function App() {
     message: "",
   });
 
-  useEffect(() => {
-    async function getUserPlaces() {
-      setIsFetching(true);
-      try {
-        const places = await fetchUserPlaces();
-        setUserPlaces(places);
-      } catch (error) {
-        setUserPlaces([]);
-        setError({
-          message:
-            error.message || "Could not fetch places, please try again later.",
-        });
-      } finally {
-        setIsFetching(false);
-      }
-    }
-    getUserPlaces();
-  }, []);
+  //Fetching the user places with related states using useFetch hook
+  const {
+    isFetching,
+    error,
+    fetchedData: userPlaces,
+    setFetchedData: setUserPlaces,
+  } = useFetch(fetchUserPlaces, []);
 
   //Modal helpers
   const openModal = (type, message) => setModal({ open: true, type, message });
@@ -76,7 +63,7 @@ function App() {
     const updatedPlaces = userPlaces.filter(
       (place) => place.id !== selectedPlace.current.id
     );
-    setUserPlaces(updatedPlaces);// Optimistically update state
+    setUserPlaces(updatedPlaces); // Optimistically update state
     try {
       await updateUserPlaces(updatedPlaces);
       openModal(
@@ -84,7 +71,7 @@ function App() {
         `${selectedPlace.current.title} removed successfully!`
       );
     } catch (error) {
-      setUserPlaces(prevPlaces);// rollback
+      setUserPlaces(prevPlaces); // rollback
       openModal("error", error.message || "Failed to delete a place.");
     }
     closeModal();

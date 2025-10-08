@@ -3,44 +3,35 @@ import Places from "./Places.jsx";
 import ErrorPage from "./UI/Error.jsx";
 import { sortPlacesByDistance } from "../loc.js";
 import { fetchAvailablePlaces } from "../http.js";
+import { useFetch } from "../hooks/useFetch.js";
 
 export default function AvailablePlaces({ onSelectPlace }) {
-  const [availablePlaces, setAvailablePlaces] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState();
+  //Fetching the available places with related states using useFetch hook
+  const {
+    isFetching,
+    fetchedData: availablePlaces,
+    setFetchedData: setAvailablePlaces,
+    error,
+  } = useFetch(fetchAvailablePlaces, []);
+
 
   useEffect(() => {
-    //Fetching places from API
-    async function fetchPlaces() {
-      setIsFetching(true);
-      try {
-        const places = await fetchAvailablePlaces();
-
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const sortedPlaces = sortPlacesByDistance(
-              places,
-              position.coords.latitude,
-              position.coords.longitude
-            );
-            setAvailablePlaces(sortedPlaces);
-          },
-          () => {
-            setAvailablePlaces(places);
-          }
+    if (!availablePlaces.length) return;
+    //Sort the available places
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const sortedPlaces = sortPlacesByDistance(
+          availablePlaces,
+          position.coords.latitude,
+          position.coords.longitude
         );
-      } catch (error) {
-        setError({
-          message:
-            error.message || "Could not fetch places, please try again later.",
-        });
-      } finally {
-        setIsFetching(false);
+        setAvailablePlaces(sortedPlaces);
+      },
+      () => {
+        setAvailablePlaces(availablePlaces);
       }
-    }
-
-    fetchPlaces();
-  }, []);
+    );
+  }, [availablePlaces]);
 
   if (error) {
     return <ErrorPage title="An error occurred!" message={error.message} />;
