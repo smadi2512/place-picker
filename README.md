@@ -1,38 +1,50 @@
 # 📌 Place Picker
 
-![React](https://img.shields.io/badge/React-19.1.1-61DAFB?logo=react)
+![React](https://img.shields.io/badge/React-19.2.0-61DAFB?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-4.5.14-646CFF?logo=vite)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript)
+![Node.js](https://img.shields.io/badge/Node.js-22.14.0-339933?logo=node.js)
+![Express](https://img.shields.io/badge/Express-4.21.2-000000?logo=express)
 
 
-A simple **React.js frontend application** to create your personal collection of places you would like to visit or you have visited. This is a **frontend-only version** (no backend integration), using browser's localStorage to persist picked places. You can select/unselect your favorite places easily.
+A **full-stack web application** built with **React (frontend) and Node.js + Express (backend)** to create your personal collection of places you would like to visit or you have visited.
+The React frontend communicates with the backend via RESTful APIs to persist user data. You can select/unselect your favorite places easily.
 
-This project started from a guided exercise, but I **significantly extended and customized it** with independent features, UX improvements, and design decisions — including dynamic modal content, auto-confirmation unselect with a countdown progress bar, **and fully responsive design for mobile, tablet, and desktop users**.
+This project started from a guided exercise, but I **significantly extended and customized it** with independent features, UX improvements, and design decisions — including dynamic modal content, auto-confirmation unselect with a countdown progress bar, **fully responsive design for mobile, tablet, and desktop users**, and **backend integration for saving and fetching data.**
 
 ---
 
 ## 🚀 Features
 
-- ⚠️ Frontend-only: Data is stored in browser's localStorage, no backend/API is used
-- 📍 Sort available places based on user's current location (fallback to default order if permission is denied)
-- 💾 Save picked places to localStorage
+- ⚡ **Full-Stack Integration**: React frontend interacts with Node.js backend to persist user data
+- 📍 Sort available places based on the user's current location (fallback to default order if permission is denied)
+- 💾 Save picked places to **backend (via API)**
 - ➕ Select new places and prevent duplicates with a warning modal
 - ❌ Remove places with a controlled confirmation modal
 - ⏳ Auto-confirm delete after 5 seconds, with a countdown progress bar
 - 🎨 Dynamic modal content (success, warning, delete confirmation)
-- 📱 Fully responsive design for mobile, tablet, and desktop users.
+- 📱 Fully **responsive design** for mobile, tablet, and desktop users
+- 🛡️ Graceful error handling for network/server issues
 
 ---
 
 ## 🛠️ Tech Stack
 
+### Frontend:
+
 - **React** (hooks: useState, useRef, useEffect, useCallback)
 - **React Portals** for modal rendering
-- **Browser's localStorage**
 - **Geolocation API** to get the user's current location for sorting with a default order if permission is denied
 - **JavaScript (ES6+)**
 - **CSS3/Styling**
 - **Vite** (for development and build)
+
+### Backend:
+
+- Node.js
+- Express
+- REST API Endpoints
+- JSON-based data storage (places.json, user-places.json)
 
 ---
 
@@ -40,32 +52,42 @@ This project started from a guided exercise, but I **significantly extended and 
 
 ```text
 PlacePicker/
-src/
-├── assets/                 # Images and static files
-│   ├── places/             # Place images
-|   ├── screenshots/        # project's screenshots
-│   └── logo.png            # App logo
+├── backend/                      # Node.js + Express backend
+│   ├── data/
+│   │   ├── places.json
+│   │   └── user-places.json
+│   └── app.js                    # Express server with REST API routes
 │
-├── components/             # Reusable components
-│   ├── UI/                 # Shared UI components
-│   │   ├── Modal.jsx
-│   │   └── ProgressBar.jsx
-│   ├── Places.jsx
-│   └── DeleteConfirmation.jsx
+├── src/
+│   ├── assets/                   # Images and static files
+│   │   ├── places/               # Place images
+│   │   ├── screenshots/          # Project screenshots
+│   │   └── logo.png              # App logo
+│   │
+│   ├── components/               # Reusable components
+│   │   ├── UI/                   # Shared UI components
+│   │   │   ├── Modal.jsx
+│   │   │   ├── ProgressBar.jsx
+│   │   │   └── Error.jsx
+│   │   ├── AvailablePlaces.jsx
+│   │   ├── Places.jsx
+│   │   └── DeleteConfirmation.jsx
+│   │
+|   |
+│   ├── http.js                   # API request functions
+│   ├── loc.js                    # Distance calculation utilities
+│   ├── App.jsx                   # Root app component
+│   ├── main.jsx                  # React entry point
+│   └── index.css                 # Global styles
 │
-├── data.js                 # Places dataset
-├── loc.js                  # Distance calculation utilities
-├── App.jsx                 # Root app component
-├── main.jsx                # React entry point
-└── index.css               # Global styles
+└── README.md                     # Project documentation
 ```
-
-
 ---
 
 ## ⚙️ Installation & Usage
 
-Clone the repo and install dependencies:
+### Frontend Setup
+Clone the repository, install dependencies, and start the development server:
 
 ```bash
 git clone git@github.com:smadi2512/place-picker.git
@@ -73,8 +95,17 @@ cd place-picker
 npm install
 npm run dev
 ```
+Frontend (Vite) runs at http://localhost:5173
 
-Open your browser at http://localhost:5173 (Vite default).
+## Backend Setup
+Open a new terminal for backend, install dependencies, and start the server:
+
+```bash
+cd backend
+npm install
+npm start
+```
+Backend (Express) runs at http://localhost:3000
 
 ---
 
@@ -103,10 +134,13 @@ Open your browser at http://localhost:5173 (Vite default).
 </table>
 
 ----
+
 ## 🧩 Future Improvements
+
 - ➕ Lightbox with more details about a place
 - 🌍 Add a map view with selected places highlighted.
 - 🔎 Search & filter functionality for places.
+- ⚡ Upgrade backend to a real database (MongoDB/PostgreSQL)
 
 
 ---
