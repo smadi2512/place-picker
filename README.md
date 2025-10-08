@@ -8,7 +8,7 @@
 
 A **full-stack web application** built with React (frontend) and Node.js + Express (backend) to create your personal collection of places you would like to visit or have visited.
 
-This project started from a guided exercise, but I **significantly extended and customized it** with independent features, UX improvements, and design decisions — including dynamic modal content, auto-confirmation unselect with a countdown progress bar, **fully responsive design for mobile, tablet, and desktop users**, and **backend integration for saving and fetching data.**
+This project started from a guided exercise, but I **significantly extended and customized it** with independent features, UX improvements, and design decisions — including dynamic modal content, auto-confirmation unselect with a countdown progress bar, **fully responsive design for mobile, tablet, and desktop users**, **backend integration for saving and fetching data.**, and **`useFetch` custom hook**.
 
 This repository contains both versions:
 - **Frontend-only version**: Uses browser's localStorage to persist picked places.
@@ -28,32 +28,76 @@ You can view the Frontend-only version on the [frontend-only](https://github.com
 - 🎨 **Dynamic modal content** (success, warning, delete confirmation)
 - 📱 Fully **responsive design** for mobile, tablet, and desktop users
 
+
 ### Full-Stack Version Enhancements
 - ⚡ **Backend API**: React frontend interacts with backend to persist user data
 - 🛡️ **Error Handling**: Graceful handling for network/server issues.
 - 🚀 **Optimistic UI Updates**: Immediate visual feedback when adding/removing places for smooth user experience, with automatic rollback if backend synchronization fails
+- 📘 **Custom hook**: `useFetch` hook for reusable data fetching with built-in loading state, error handling, and request cancellation
+
 
 ### Frontend-Only Version
-- 💾 Local Storage: Data is stored directly in the browser's localStorage.
+- 💾 **Local Storage**: Data is stored directly in the browser's localStorage.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
+### 🖥️ Frontend
 - **React 19.2.0** (hooks: useState, useRef, useEffect, useCallback)
 - **React Portals** for modal rendering
-- **Optimistic UI Updates** for select/unselect places with rollback
-- **Browser's localStorage** (used in frontend-only version)
-- **Geolocation API** to get the user's current location for sorting with a default order if permission is denied
 - **JavaScript (ES6+)**
 - **CSS3/Styling**
 - **Vite** (for development and build)
 
-### Backend (Full-stack version)
+### 🏗️ Custom Architecture & Patterns
+- **Optimistic UI Updates** for select/unselect places with rollback
+- **Custom hook**: `useFetch` reusable hook for encapsulation async fetching logic with loading, error and abort handling
+  - Automatic handling loading and error states
+  - Aborting fetch requests on component unmount
+  - Re-fetching whenever fetchFn changes
+  - Reusable across multiple components
+
+
+### 🌐 Browser APIs & Storage
+- **Geolocation API** to get the user's current location for sorting with a default order if permission is denied
+- **Browser's localStorage** (used in frontend-only version)
+
+
+### 🛠️ Backend (Full-stack version)
 - Node.js
 - Express.js for creating REST API endpoints
 - JSON files for data storage (places.json & user-places.json)
+
+---
+
+## 🚀 Advanced Features
+
+### 📘 `useFetch` custom hook
+- **`useFetch` Hook**: Production-ready data fetching with loading state, error handling, request cancellation, and reusable architecture
+- **Used in**: App.jsx (user places), AvailablePlaces.jsx (available places)
+- **Benefits**: Prevents memory leaks, reduces code duplication, improves maintainability
+- **Code**: [src/hooks/useFetch.js](https://github.com/smadi2512/place-picker/tree/master/src/hooks/useFetch.js)
+
+```javascript
+// Usage examples in components
+//Fetching the user places with related states in App.js
+const {
+  isFetching,
+  error,
+  fetchedData: userPlaces,
+  setFetchedData: setUserPlaces
+} = useFetch(fetchUserPlaces, []);
+
+//Fetching the available places with related states in AvailablePlaces.jsx
+const {
+  isFetching,
+  fetchedData: availablePlaces,
+  setFetchedData: setAvailablePlaces,
+  error,
+} = useFetch(fetchAvailablePlaces, []);
+
+```
 
 ---
 
@@ -81,7 +125,10 @@ PlacePicker/
 │   │   ├── AvailablePlaces.jsx
 │   │   ├── Places.jsx
 │   │   └── DeleteConfirmation.jsx
-│   │
+|   |
+│   ├── hooks/
+|   |   └── useFetch.js           # useFetch() custom hook
+|   |
 │   ├── data.js                   # Places dataset (for frontend-only version)
 │   ├── http.js                   # API request functions (for full-stack version)
 │   ├── loc.js                    # Distance calculation utilities
@@ -98,44 +145,33 @@ PlacePicker/
 
 
 ### Full-stack version:
-Clone the repository and install frontend dependencies:
+Clone the repository, install frontend dependencies, and start the frontend server:
 
 ```bash
 git clone git@github.com:smadi2512/place-picker.git
 cd place-picker
 npm install
-```
-Start the frontend development server:
-
-```bash
 npm run dev
 ```
-- Note: The frontend will run on http://localhost:5173.
+**Note**: The frontend will run on http://localhost:5173.
 
-
-In a new terminal, navigate to the backend directory and install its dependencies:
+In a new terminal, navigate to the backend directory, install its dependencies, and start the backend server:
 
 ```bash
 cd backend
 npm install
-```
-Start the backend server:
-
-```bash
 npm start
 ```
-- Note: The backend will run on http://localhost:3000.
+**Note**: The backend will run on http://localhost:3000.
 
 ### Frontend-only version:
-Switch to the frontend-only branch.
-
-Install dependencies and run the dev server from the root directory:
+Switch to the frontend-only branch, install dependencies, and run the dev server from the root directory:
 
 ```bash
 npm install
 npm run dev
 ```
-- Note: The app will run on http://localhost:5173 and use localStorage.
+**Note**: The app will run on http://localhost:5173 and use localStorage.
 
 ---
 
@@ -176,8 +212,10 @@ npm run dev
 
 ## 🧭 Project Versions & Branches
 
-- [Full-stack version (current)](https://github.com/smadi2512/place-picker): The current, main branch featuring the full-stack implementation with React and Node.js.
+- [Fullstack version (with custom hooks)](https://github.com/smadi2512/place-picker): The current implementation featuring custom hooks architecture
+- [Fullstack version (without custom hooks)](https://github.com/smadi2512/place-picker/tree/fullstack): The full-stack implementation of the project with React.js and Node.js.
 - [Frontend-only version](https://github.com/smadi2512/place-picker/tree/frontend-only): The initial version of the project, a React frontend that uses the browser's localStorage.
+
 
 ---
 
