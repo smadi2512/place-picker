@@ -29,8 +29,9 @@ You can view the Frontend-only version on the [frontend-only](https://github.com
 - 📱 Fully **responsive design** for mobile, tablet, and desktop users
 
 ### Full-Stack Version Enhancements
-- ⚡ Backend API: React frontend interacts with backend to persist user data
-- 🛡️ Error Handling: Graceful handling for network/server issues.
+- ⚡ **Backend API**: React frontend interacts with backend to persist user data
+- 🛡️ **Error Handling**: Graceful handling for network/server issues.
+- 🚀 **Optimistic UI Updates**: Immediate visual feedback when adding/removing places for smooth user experience, with automatic rollback if backend synchronization fails
 
 ### Frontend-Only Version
 - 💾 Local Storage: Data is stored directly in the browser's localStorage.
@@ -42,6 +43,7 @@ You can view the Frontend-only version on the [frontend-only](https://github.com
 ### Frontend
 - **React 19.2.0** (hooks: useState, useRef, useEffect, useCallback)
 - **React Portals** for modal rendering
+- **Optimistic UI Updates** for select/unselect places with rollback
 - **Browser's localStorage** (used in frontend-only version)
 - **Geolocation API** to get the user's current location for sorting with a default order if permission is denied
 - **JavaScript (ES6+)**
