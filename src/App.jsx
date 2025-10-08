@@ -56,25 +56,27 @@ function App() {
       openModal("warning", `${selectedPlaceItem.title} already added!`);
       return;
     }
+    const prevPlaces = [...userPlaces];
     const updatedPlaces = [selectedPlaceItem, ...userPlaces];
-    setUserPlaces(updatedPlaces); //Updating the sate
+    setUserPlaces(updatedPlaces); // Optimistically update state
 
     //Send user places to backend
     try {
       await updateUserPlaces(updatedPlaces);
       openModal("success", `${selectedPlaceItem.title} added successfully!`);
     } catch (error) {
-      setUserPlaces(userPlaces); // rollback
+      setUserPlaces(prevPlaces); // rollback
       openModal("error", error.message || "Failed to update places.");
     }
   }
 
   //Remove a place from the picked places
   const handleRemovePlace = useCallback(async () => {
+    const prevPlaces = [...userPlaces];
     const updatedPlaces = userPlaces.filter(
       (place) => place.id !== selectedPlace.current.id
     );
-    setUserPlaces(updatedPlaces);
+    setUserPlaces(updatedPlaces);// Optimistically update state
     try {
       await updateUserPlaces(updatedPlaces);
       openModal(
@@ -82,6 +84,7 @@ function App() {
         `${selectedPlace.current.title} removed successfully!`
       );
     } catch (error) {
+      setUserPlaces(prevPlaces);// rollback
       openModal("error", error.message || "Failed to delete a place.");
     }
     closeModal();
