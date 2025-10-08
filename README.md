@@ -24,7 +24,8 @@ This project started from a guided exercise, but I **significantly extended and 
 - ⏳ Auto-confirm delete after 5 seconds, with a countdown progress bar
 - 🎨 Dynamic modal content (success, warning, delete confirmation)
 - 📱 Fully **responsive design** for mobile, tablet, and desktop users
-- 🛡️ Graceful error handling for network/server issues
+- 🛡️ Graceful **error handling** for network/server issues
+- 🚀 **Optimistic UI Updates**: Immediate visual feedback when adding/removing places for smooth user experience, with automatic rollback if backend synchronization fails
 
 ---
 
@@ -34,6 +35,7 @@ This project started from a guided exercise, but I **significantly extended and 
 
 - **React** (hooks: useState, useRef, useEffect, useCallback)
 - **React Portals** for modal rendering
+- **Optimistic UI Updates** for select/unselect places with rollback
 - **Geolocation API** to get the user's current location for sorting with a default order if permission is denied
 - **JavaScript (ES6+)**
 - **CSS3/Styling**
@@ -97,7 +99,7 @@ npm run dev
 ```
 Frontend (Vite) runs at http://localhost:5173
 
-## Backend Setup
+### Backend Setup
 Open a new terminal for backend, install dependencies, and start the server:
 
 ```bash
